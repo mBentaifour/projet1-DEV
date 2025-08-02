@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Login from "./Login";
+import FileUpload from "./FileUpload";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -19,7 +20,7 @@ function App() {
         <>
           <p>✅ Connecté</p>
           <button onClick={handleLogout}>Se déconnecter</button>
-          {/* Ici on ajoutera FileUpload et FileList */}
+          <FileUpload />
         </>
       ) : (
         <Login onLogin={() => setIsLoggedIn(true)} />
