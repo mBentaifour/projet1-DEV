@@ -1,35 +1,65 @@
 // src/auth.js
 import axios from "axios";
 
-export const getValidAccessToken = async () => {
-  let access = localStorage.getItem("access");
-  const refresh = localStorage.getItem("refresh");
+const API_URL = "http://192.168.1.40:8000/api"; // on enlève /auth ici
 
-  if (!access && !refresh) {
-    throw new Error("Pas de token, tu dois te connecter.");
-  }
+// Sauvegarde des tokens
+export const saveTokens = (access, refresh) => {
+  localStorage.setItem("access", access);
+  localStorage.setItem("refresh", refresh);
+};
 
+// Récupération des tokens
+export const getTokens = () => ({
+  access: localStorage.getItem("access"),
+  refresh: localStorage.getItem("refresh"),
+});
+
+// Vérifie si un token est expiré
+const isTokenExpired = (token) => {
+  if (!token) return true;
   try {
-    // On teste l'access token en appelant une route protégée
-    await axios.get("http://127.0.0.1:8000/api/files/", {
-      headers: { Authorization: `Bearer ${access}` },
-    });
-    return access;
-  } catch (error) {
-    if (error.response?.status === 401 && refresh) {
-      try {
-        const res = await axios.post("http://127.0.0.1:8000/api/token/refresh/", {
-          refresh: refresh,
-        });
-
-        const newAccess = res.data.access;
-        localStorage.setItem("access", newAccess);
-        return newAccess;
-      } catch (refreshError) {
-        throw new Error("Échec du refresh token. Reconnecte-toi.");
-      }
-    } else {
-      throw new Error("Token invalide.");
-    }
+    const payload = JSON.parse(atob(token.split(".")[1])); // Décodage JWT
+    return Date.now() > payload.exp * 1000;
+  } catch {
+    return true;
   }
 };
+
+// Récupère un access token valide
+export const getValidAccessToken = async () => {
+  let { access, refresh } = getTokens();
+
+  // Si access token encore valide → on le retourne
+  if (access && !isTokenExpired(access)) {
+    return access;
+  }
+
+  // Si access expiré mais refresh valide → on rafraîchit
+  if (refresh && !isTokenExpired(refresh)) {
+    try {
+      const response = await axios.post(`${API_URL}/token/refresh/`, {
+        refresh: refresh,
+      });
+      const newAccess = response.data.access;
+      saveTokens(newAccess, refresh);
+      return newAccess;
+    } catch (error) {
+      console.error("❌ Erreur refresh token :", error);
+      logout();
+      throw new Error("Session expirée, reconnectez-vous.");
+    }
+  }
+
+  // Si tout expiré → déconnexion
+  logout();
+  throw new Error("Session expirée, reconnectez-vous.");
+};
+
+// Déconnexion
+export const logout = () => {
+  localStorage.removeItem("access");
+  localStorage.removeItem("refresh");
+  window.location.href = "/login";
+};
+
