@@ -11,9 +11,13 @@ class FileUploadView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
+# backend/files/views.py
 class FileListView(generics.ListAPIView):
     serializer_class = FileSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_context(self):
+        return {'request': self.request}
 
     def get_queryset(self):
         return File.objects.filter(owner=self.request.user)

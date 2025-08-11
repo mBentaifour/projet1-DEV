@@ -10,7 +10,7 @@ const FileList = () => {
     const fetchFiles = async () => {
       try {
         const token = await getValidAccessToken();
-        const response = await axios.get("http://127.0.0.1:8000/api/files/", {
+        const response = await axios.get("127.0.0.1:8000/api/files/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

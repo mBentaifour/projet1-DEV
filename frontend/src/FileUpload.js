@@ -22,7 +22,7 @@ const FileUpload = () => {
       formData.append("file", file);
 
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/files/upload/",
+        "127.0.0.1/api/files/upload/",
         formData,
         {
           headers: {

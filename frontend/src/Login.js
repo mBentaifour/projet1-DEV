@@ -12,7 +12,7 @@ const Login = () => {
     e.preventDefault();
     try {
       console.log("📨 Envoi du POST avec", username, password); // juste un log
-      const response = await axios.post("http://192.168.1.74:8000/api/auth/login/", {
+      const response = await axios.post("http://127.0.0.1:8000/api/token/", {
         username,
         password,
       });
