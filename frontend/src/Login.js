@@ -3,6 +3,9 @@ import React, { useState } from "react";
 import axios from "axios";
 import { saveTokens } from "./auth";
 
+// Exemple pour Login.js
+import { API_URL } from "./auth";
+
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

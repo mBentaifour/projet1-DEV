@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import axios from "axios";
 import { getValidAccessToken } from "./auth";
 
+// Exemple pour FileUpload.js
+import { API_URL } from "./auth";
+
 const FileUpload = () => {
   const [file, setFile] = useState(null);
 

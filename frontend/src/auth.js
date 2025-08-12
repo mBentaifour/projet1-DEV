@@ -1,8 +1,7 @@
 // src/auth.js
 import axios from "axios";
 
-const API_URL = "http://127.0.0.1:8000/api"; // on enlève /auth ici
-
+export const API_URL = "http://127.0.0.1:8000/api";
 // Sauvegarde des tokens
 export const saveTokens = (access, refresh) => {
   localStorage.setItem("access", access);
