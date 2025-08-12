@@ -1,7 +1,9 @@
 // src/auth.js
 import axios from "axios";
 
+// L'URL de base de ton API. C'est la seule ligne à changer si tu changes d'adresse.
 export const API_URL = "http://127.0.0.1:8000/api";
+
 // Sauvegarde des tokens
 export const saveTokens = (access, refresh) => {
   localStorage.setItem("access", access);
@@ -29,12 +31,10 @@ const isTokenExpired = (token) => {
 export const getValidAccessToken = async () => {
   let { access, refresh } = getTokens();
 
-  // Si access token encore valide → on le retourne
   if (access && !isTokenExpired(access)) {
     return access;
   }
 
-  // Si access expiré mais refresh valide → on rafraîchit
   if (refresh && !isTokenExpired(refresh)) {
     try {
       const response = await axios.post(`${API_URL}/token/refresh/`, {
@@ -50,7 +50,6 @@ export const getValidAccessToken = async () => {
     }
   }
 
-  // Si tout expiré → déconnexion
   logout();
   throw new Error("Session expirée, reconnectez-vous.");
 };
@@ -61,4 +60,3 @@ export const logout = () => {
   localStorage.removeItem("refresh");
   window.location.href = "/login";
 };
-

@@ -1,9 +1,7 @@
+// src/FileUpload.js
 import React, { useState } from "react";
 import axios from "axios";
-import { getValidAccessToken } from "./auth";
-
-// Exemple pour FileUpload.js
-import { API_URL } from "./auth";
+import { getValidAccessToken, API_URL } from "./auth"; // <-- IMPORT IMPORTANT
 
 const FileUpload = () => {
   const [file, setFile] = useState(null);
@@ -20,12 +18,12 @@ const FileUpload = () => {
 
     try {
       const token = await getValidAccessToken();
-
       const formData = new FormData();
       formData.append("file", file);
 
+      // 👇 UTILISATION DE API_URL
       const response = await axios.post(
-        "127.0.0.1/api/files/upload/",
+        `${API_URL}/files/upload/`,
         formData,
         {
           headers: {
@@ -38,6 +36,8 @@ const FileUpload = () => {
       alert("✅ Fichier téléversé avec succès !");
       console.log("Réponse serveur :", response.data);
       setFile(null);
+      // Optionnel: rafraîchir la page pour voir le nouveau fichier
+      window.location.reload(); 
     } catch (error) {
       console.error("Erreur de téléversement :", error);
       alert(error.message || "❌ Erreur de téléversement.");
@@ -54,4 +54,3 @@ const FileUpload = () => {
 };
 
 export default FileUpload;
-
