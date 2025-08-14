@@ -6,7 +6,7 @@
 📤 Téléversement de Fichiers : Interface simple pour envoyer des fichiers (PDF, images, etc.) vers le serveur.
 
 🖼️ Affichage Dynamique :
-/home/bentaifour/Images/Captures d’écran/Capture d’écran du 2025-08-14 13-53-45.png
+![Aperçu du gestionnaire de fichiers](screenshots/apercu-principal.png)
 Prévisualisation des images directement dans la liste.
 
 Liens de téléchargement pour les autres types de fichiers.
