@@ -2,7 +2,7 @@
 import axios from "axios";
 
 // L'URL de base de ton API. C'est la seule ligne à changer si tu changes d'adresse.
-export const API_URL = "http://127.0.0.1:8000/api";
+export const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000/api";
 
 // Sauvegarde des tokens
 export const saveTokens = (access, refresh) => {
