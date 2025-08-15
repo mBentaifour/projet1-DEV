@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Login from "./Login";
 import FileUpload from "./FileUpload";
@@ -11,17 +11,23 @@ function App() {
     !!localStorage.getItem("access")
   );
 
-  // L'état des fichiers et la fonction pour les charger sont maintenant ici !
   const [files, setFiles] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(""); // <-- NOUVEAU : état pour la recherche
 
-  const fetchFiles = async () => {
-    if (!isLoggedIn) return; // Ne rien faire si on n'est pas connecté
+  const fetchFiles = useCallback(async () => {
+    if (!isLoggedIn) return;
     try {
       setLoading(true);
       const token = await getValidAccessToken();
-      const response = await axios.get(`${API_URL}/files/`, {
+
+      // On ajoute le terme de recherche à l'URL si il existe
+      const url = searchTerm
+        ? `${API_URL}/files/?search=${searchTerm}`
+        : `${API_URL}/files/`;
+
+      const response = await axios.get(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -33,34 +39,41 @@ function App() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isLoggedIn, searchTerm]); // <-- On ajoute searchTerm aux dépendances
 
-  // On charge les fichiers une fois au démarrage si l'utilisateur est connecté
   useEffect(() => {
     fetchFiles();
-  }, [isLoggedIn]);
+  }, [fetchFiles]);
 
 
   const handleLogout = () => {
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
     setIsLoggedIn(false);
-    setFiles([]); // Vider la liste des fichiers à la déconnexion
+    setFiles([]);
   };
 
   return (
-    <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
+    <div className="container">
       <h1>projet1-DEV - Interface utilisateur</h1>
       {isLoggedIn ? (
         <>
           <p>✅ Connecté</p>
-          <button onClick={handleLogout}>Se déconnecter</button>
+          <button onClick={handleLogout} className="logout-button">Se déconnecter</button>
 
-          {/* On passe la fonction pour rafraîchir en prop */}
           <FileUpload onUploadSuccess={fetchFiles} />
 	        <hr />
 
-          {/* On passe la liste des fichiers et la fonction de rafraîchissement en props */}
+          {/* 👇 AJOUT DE LA BARRE DE RECHERCHE */}
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder="Rechercher un fichier..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
           <FileList
             files={files}
             loading={loading}

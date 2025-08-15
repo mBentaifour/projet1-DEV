@@ -1,3 +1,4 @@
+/* src/index.css */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,9 +6,137 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f0f2f5;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.container {
+  max-width: 900px;
+  margin: 2rem auto;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+h1, h3 {
+  color: #333;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 2rem 0;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.logout-button {
+  background-color: #6c757d;
+}
+.logout-button:hover {
+  background-color: #5a6268;
+}
+
+.upload-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+li strong {
+  font-size: 1.1em;
+  color: #333;
+  word-break: break-all;
+}
+
+li a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+li a:hover {
+  text-decoration: underline;
+}
+
+li img {
+  margin-top: 10px;
+  border-radius: 5px;
+  border: 1px solid #eee;
+  max-width: 100%;
+}
+
+.file-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 20px;
+}
+
+.delete-button {
+  background-color: #dc3545;
+}
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+.share-button {
+  background-color: #28a745;
+}
+.share-button:hover {
+  background-color: #218838;
+}
+
+/* === Barre de recherche === */
+.search-bar {
+  margin-bottom: 1.5rem;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-sizing: border-box; /* Important pour que le padding ne casse pas la largeur */
 }
