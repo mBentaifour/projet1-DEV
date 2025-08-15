@@ -10,23 +10,18 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("access")
   );
-
+  
   const [files, setFiles] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState(""); // <-- NOUVEAU : état pour la recherche
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchFiles = useCallback(async () => {
     if (!isLoggedIn) return;
     try {
       setLoading(true);
       const token = await getValidAccessToken();
-
-      // On ajoute le terme de recherche à l'URL si il existe
-      const url = searchTerm
-        ? `${API_URL}/files/?search=${searchTerm}`
-        : `${API_URL}/files/`;
-
+      const url = searchTerm ? `${API_URL}/files/?search=${searchTerm}` : `${API_URL}/files/`;
       const response = await axios.get(url, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -39,12 +34,11 @@ function App() {
     } finally {
       setLoading(false);
     }
-  }, [isLoggedIn, searchTerm]); // <-- On ajoute searchTerm aux dépendances
+  }, [isLoggedIn, searchTerm]);
 
   useEffect(() => {
     fetchFiles();
   }, [fetchFiles]);
-
 
   const handleLogout = () => {
     localStorage.removeItem("access");
@@ -60,11 +54,10 @@ function App() {
         <>
           <p>✅ Connecté</p>
           <button onClick={handleLogout} className="logout-button">Se déconnecter</button>
-
+          
           <FileUpload onUploadSuccess={fetchFiles} />
 	        <hr />
 
-          {/* 👇 AJOUT DE LA BARRE DE RECHERCHE */}
           <div className="search-bar">
             <input
               type="text"
@@ -74,11 +67,11 @@ function App() {
             />
           </div>
 
-          <FileList
-            files={files}
-            loading={loading}
-            error={error}
-            onDeleteSuccess={fetchFiles}
+          <FileList 
+            files={files} 
+            loading={loading} 
+            error={error} 
+            onDeleteSuccess={fetchFiles} 
           />
         </>
       ) : (

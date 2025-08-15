@@ -6,7 +6,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f0f2f5;
+  background-color: #f0f2f5; /* Fond légèrement gris */
 }
 
 code {
@@ -14,6 +14,7 @@ code {
     monospace;
 }
 
+/* === Le conteneur principal de l'application === */
 .container {
   max-width: 900px;
   margin: 2rem auto;
@@ -23,6 +24,7 @@ code {
   padding: 2rem;
 }
 
+/* === Style Général === */
 h1, h3 {
   color: #333;
 }
@@ -33,6 +35,7 @@ hr {
   margin: 2rem 0;
 }
 
+/* === Boutons === */
 button {
   background-color: #007bff;
   color: white;
@@ -60,12 +63,14 @@ button:disabled {
   background-color: #5a6268;
 }
 
+/* === Formulaire d'Upload === */
 .upload-section {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+/* === Liste des Fichiers === */
 ul {
   list-style-type: none;
   padding: 0;
@@ -80,7 +85,12 @@ li {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* Gère le passage à la ligne sur petits écrans */
+}
+
+li .file-info {
+  flex: 1; /* Permet au nom du fichier de prendre l'espace disponible */
+  min-width: 200px; /* Évite que le nom soit trop écrasé */
 }
 
 li strong {
@@ -138,5 +148,5 @@ li img {
   font-size: 16px;
   border: 1px solid #ddd;
   border-radius: 5px;
-  box-sizing: border-box; /* Important pour que le padding ne casse pas la largeur */
+  box-sizing: border-box;
 }

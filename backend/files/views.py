@@ -11,13 +11,43 @@ from django.http import FileResponse, Http404
 from .models import File, SharedLink
 from .serializers import FileSerializer, SharedLinkSerializer
 
+# --- VUE MODIFIÉE AVEC LA VALIDATION ---
 class FileUploadView(generics.CreateAPIView):
     queryset = File.objects.all()
     serializer_class = FileSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    # On redéfinit la méthode create pour ajouter notre logique de validation
+    def create(self, request, *args, **kwargs):
+        file_obj = request.data.get('file')
+
+        # --- 1. Validation de la taille du fichier ---
+        # 5 * 1024 * 1024 = 5 MB en bytes
+        if file_obj.size > 5 * 1024 * 1024: 
+            return Response({
+                'error': 'Le fichier est trop volumineux. La taille maximale est de 5 Mo.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # --- 2. Validation du type de fichier ---
+        allowed_extensions = ['.jpg', '.jpeg', '.png', '.webp', '.pdf', '.docx']
+        # On récupère l'extension en minuscules pour être sûr
+        file_extension = '.' + file_obj.name.split('.')[-1].lower()
+
+        if file_extension not in allowed_extensions:
+            return Response({
+                'error': f"Type de fichier non autorisé. Types autorisés : {', '.join(allowed_extensions)}"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Si tout est bon, on continue le processus normal de DRF
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
 
 class FileListView(generics.ListAPIView):
     serializer_class = FileSerializer
@@ -32,6 +62,7 @@ class FileListView(generics.ListAPIView):
     def get_queryset(self):
         return File.objects.filter(owner=self.request.user)
 
+
 class FileDeleteView(generics.DestroyAPIView):
     queryset = File.objects.all()
     permission_classes = [permissions.IsAuthenticated]
@@ -40,7 +71,7 @@ class FileDeleteView(generics.DestroyAPIView):
         return File.objects.filter(owner=self.request.user)
 
 
-# --- NOUVELLES VUES POUR LE PARTAGE ---
+# --- VUES POUR LE PARTAGE ---
 
 class CreateSharedLinkView(APIView):
     """

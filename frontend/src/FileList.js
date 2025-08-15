@@ -4,7 +4,6 @@ import axios from "axios";
 import { getValidAccessToken, API_URL } from "./auth";
 
 const FileList = ({ files, loading, error, onDeleteSuccess }) => {
-
   const handleDelete = async (fileId) => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce fichier ?")) {
       return;
@@ -26,13 +25,8 @@ const FileList = ({ files, loading, error, onDeleteSuccess }) => {
       const response = await axios.post(`${API_URL}/files/${fileId}/share/`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       const sharedLink = response.data.shared_link;
-      prompt(
-        "Voici votre lien de partage (valide 24h). Copiez-le :",
-        sharedLink
-      );
-
+      prompt("Voici votre lien de partage (valide 24h). Copiez-le :", sharedLink);
     } catch (err) {
       console.error("Erreur lors de la création du lien de partage :", err);
       alert("❌ Impossible de créer le lien de partage.");
@@ -51,7 +45,7 @@ const FileList = ({ files, loading, error, onDeleteSuccess }) => {
       <ul>
         {files.map((file) => (
           <li key={file.id}>
-            <div>
+            <div className="file-info">
               <p style={{ margin: 0 }}>
                 <strong>{file.name}</strong>
               </p>
@@ -65,16 +59,10 @@ const FileList = ({ files, loading, error, onDeleteSuccess }) => {
             </div>
 
             <div className="file-actions">
-              <button 
-                onClick={() => handleShare(file.id)}
-                className="share-button"
-              >
+              <button onClick={() => handleShare(file.id)} className="share-button">
                 Partager
               </button>
-              <button 
-                onClick={() => handleDelete(file.id)} 
-                className="delete-button"
-              >
+              <button onClick={() => handleDelete(file.id)} className="delete-button">
                 Supprimer
               </button>
             </div>

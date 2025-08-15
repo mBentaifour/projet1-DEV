@@ -17,33 +17,25 @@ const FileUpload = ({ onUploadSuccess }) => {
       alert("📂 Sélectionne un fichier avant d'envoyer !");
       return;
     }
-
     setIsUploading(true);
     setError("");
-
     try {
       const token = await getValidAccessToken();
       const formData = new FormData();
       formData.append("file", file);
       
-      await axios.post(
-        `${API_URL}/files/upload/`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      await axios.post(`${API_URL}/files/upload/`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setFile(null);
       document.querySelector('input[type="file"]').value = "";
       onUploadSuccess();
-
     } catch (err) {
       console.error("Erreur de téléversement :", err);
-      setError("❌ Erreur de téléversement. Veuillez réessayer."); 
+      setError("❌ Erreur de téléversement. Veuillez réessayer.");
     } finally {
       setIsUploading(false);
     }
