@@ -1,9 +1,11 @@
 // src/FileList.js
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { getValidAccessToken, API_URL } from "./auth";
 
 const FileList = ({ files, loading, error, onDeleteSuccess }) => {
+  const [visibleShareLink, setVisibleShareLink] = useState(null);
+
   const handleDelete = async (fileId) => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce fichier ?")) {
       return;
@@ -25,13 +27,25 @@ const FileList = ({ files, loading, error, onDeleteSuccess }) => {
       const response = await axios.post(`${API_URL}/files/${fileId}/share/`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      
       const sharedLink = response.data.shared_link;
-      prompt("Voici votre lien de partage (valide 24h). Copiez-le :", sharedLink);
-    } catch (err) {
+      setVisibleShareLink({ id: fileId, link: sharedLink });
+
+    } catch (err) { // <-- LE BLOC CORRIGÉ EST ICI
       console.error("Erreur lors de la création du lien de partage :", err);
       alert("❌ Impossible de créer le lien de partage.");
     }
   };
+
+  const copyToClipboard = (link) => {
+    navigator.clipboard.writeText(link).then(() => {
+      alert("Lien copié dans le presse-papiers !");
+    }).catch(err => {
+      console.error("Erreur de copie :", err);
+      alert("Impossible de copier le lien.");
+    });
+  };
+
 
   if (loading) {
     return <p>Chargement des fichiers...</p>;
@@ -55,6 +69,13 @@ const FileList = ({ files, loading, error, onDeleteSuccess }) => {
                 <a href={file.file_url} target="_blank" rel="noopener noreferrer">
                   📄 Télécharger
                 </a>
+              )}
+
+              {visibleShareLink && visibleShareLink.id === file.id && (
+                <div className="share-link-container">
+                  <input type="text" readOnly value={visibleShareLink.link} />
+                  <button onClick={() => copyToClipboard(visibleShareLink.link)}>Copier</button>
+                </div>
               )}
             </div>
 

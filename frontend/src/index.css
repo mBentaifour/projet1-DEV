@@ -150,3 +150,18 @@ li img {
   border-radius: 5px;
   box-sizing: border-box;
 }
+
+/* === Conteneur pour le lien de partage === */
+.share-link-container {
+  margin-top: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+.share-link-container input {
+  flex-grow: 1; /* Le champ prend toute la place disponible */
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 3px;
+  background-color: #fff;
+}
