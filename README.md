@@ -7,6 +7,7 @@
 
 🖼️ Affichage Dynamique :
 ![Aperçu du gestionnaire de fichiers](screenshots/apercu-principal.png)
+![Aperçu du gestionnaire de fichiers](screenshots/apercu-principal01.png)
 Prévisualisation des images directement dans la liste.
 
 Liens de téléchargement pour les autres types de fichiers.
