@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { getValidAccessToken, API_URL } from "./auth";
 
-const FileUpload = ({ onUploadSuccess }) => {
+const FileUpload = ({ onUploadSuccess, currentFolderId }) => {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
@@ -24,12 +24,15 @@ const FileUpload = ({ onUploadSuccess }) => {
       const formData = new FormData();
       formData.append("file", file);
       
+      // On ajoute l'ID du dossier courant au formulaire s'il existe
+      if (currentFolderId) {
+        formData.append("folder", currentFolderId);
+      }
+      
       await axios.post(`${API_URL}/files/upload/`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` },
       });
+
       setFile(null);
       document.querySelector('input[type="file"]').value = "";
       onUploadSuccess();

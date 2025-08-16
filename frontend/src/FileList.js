@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { getValidAccessToken, API_URL } from "./auth";
 
-const FileList = ({ files, loading, error, onDeleteSuccess }) => {
+const FileManager = ({ content, loading, error, onDeleteSuccess, onFolderClick }) => {
   const [visibleShareLink, setVisibleShareLink] = useState(null);
 
   const handleDelete = async (fileId) => {
@@ -27,11 +27,9 @@ const FileList = ({ files, loading, error, onDeleteSuccess }) => {
       const response = await axios.post(`${API_URL}/files/${fileId}/share/`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      
       const sharedLink = response.data.shared_link;
       setVisibleShareLink({ id: fileId, link: sharedLink });
-
-    } catch (err) { // <-- LE BLOC CORRIGÉ EST ICI
+    } catch (err) {
       console.error("Erreur lors de la création du lien de partage :", err);
       alert("❌ Impossible de créer le lien de partage.");
     }
@@ -46,19 +44,29 @@ const FileList = ({ files, loading, error, onDeleteSuccess }) => {
     });
   };
 
-
   if (loading) {
-    return <p>Chargement des fichiers...</p>;
+    return <p>Chargement...</p>;
   }
 
   return (
     <div>
-      <h3>📄 Liste des fichiers</h3>
+      <h3>📄 Contenu du dossier</h3>
       {error && <p style={{ color: "red" }}>{error}</p>}
-      {files.length === 0 && !loading && <p>Aucun fichier trouvé.</p>}
+      
+      {!loading && content.folders.length === 0 && content.files.length === 0 && <p>Ce dossier est vide.</p>}
+
       <ul>
-        {files.map((file) => (
-          <li key={file.id}>
+        {content.folders.map((folder) => (
+          <li key={`folder-${folder.id}`} className="folder-item" onClick={() => onFolderClick(folder)} style={{ cursor: 'pointer' }}>
+            <div className="file-info">
+              <span className="folder-icon">📁</span>
+              <strong>{folder.name}</strong>
+            </div>
+          </li>
+        ))}
+
+        {content.files.map((file) => (
+          <li key={`file-${file.id}`}>
             <div className="file-info">
               <p style={{ margin: 0 }}>
                 <strong>{file.name}</strong>
@@ -70,7 +78,6 @@ const FileList = ({ files, loading, error, onDeleteSuccess }) => {
                   📄 Télécharger
                 </a>
               )}
-
               {visibleShareLink && visibleShareLink.id === file.id && (
                 <div className="share-link-container">
                   <input type="text" readOnly value={visibleShareLink.link} />
@@ -78,14 +85,9 @@ const FileList = ({ files, loading, error, onDeleteSuccess }) => {
                 </div>
               )}
             </div>
-
             <div className="file-actions">
-              <button onClick={() => handleShare(file.id)} className="share-button">
-                Partager
-              </button>
-              <button onClick={() => handleDelete(file.id)} className="delete-button">
-                Supprimer
-              </button>
+              <button onClick={() => handleShare(file.id)} className="share-button">Partager</button>
+              <button onClick={() => handleDelete(file.id)} className="delete-button">Supprimer</button>
             </div>
           </li>
         ))}
@@ -94,4 +96,4 @@ const FileList = ({ files, loading, error, onDeleteSuccess }) => {
   );
 };
 
-export default FileList;
+export default FileManager;

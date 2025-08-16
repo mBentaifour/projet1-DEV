@@ -165,3 +165,33 @@ li img {
   border-radius: 3px;
   background-color: #fff;
 }
+
+/* === Style pour les dossiers dans la liste === */
+.folder-item {
+  background-color: #eef4ff; /* Un fond bleu clair pour les dossiers */
+  font-weight: bold;
+}
+
+.folder-icon {
+  font-size: 1.2em;
+  margin-right: 10px;
+}
+/* === Fil d'Ariane (Breadcrumbs) === */
+.breadcrumbs {
+  margin-bottom: 1rem;
+  font-size: 1.1em;
+}
+
+.breadcrumb-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+}
+
+.breadcrumb-button:hover {
+  text-decoration: underline;
+  background-color: transparent;
+}
