@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Login from "./Login";
-import FileUpload from "./FileUpload";
+import FileActions from "./FileActions";
 import FileManager from "./FileList";
 import { getValidAccessToken, API_URL } from "./auth";
 
@@ -12,8 +12,6 @@ function App() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-
-  // NOUVEAU : On gère l'historique de navigation
   const [folderHistory, setFolderHistory] = useState([{ id: null, name: "Accueil" }]);
   const currentFolder = folderHistory[folderHistory.length - 1];
 
@@ -24,7 +22,6 @@ function App() {
     try {
       const token = await getValidAccessToken();
       let response;
-
       if (searchTerm) {
         const searchUrl = `${API_URL}/files/search/?search=${searchTerm}`;
         response = await axios.get(searchUrl, { headers: { Authorization: `Bearer ${token}` } });
@@ -47,18 +44,22 @@ function App() {
     fetchContent();
   }, [fetchContent]);
 
-  // NOUVELLE FONCTION : pour naviguer dans un dossier
+  // LA FONCTION CORRIGÉE EST ICI
+  const handleLogout = () => {
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    setIsLoggedIn(false);
+    setContent({ folders: [], files: [] });
+  };
+
   const handleFolderClick = (folder) => {
-    setSearchTerm(""); // On vide la recherche quand on navigue
+    setSearchTerm("");
     setFolderHistory([...folderHistory, folder]);
   };
   
-  // NOUVELLE FONCTION : pour naviguer dans le fil d'Ariane
   const handleBreadcrumbClick = (index) => {
     setFolderHistory(folderHistory.slice(0, index + 1));
   };
-  
-  const handleLogout = () => { /* ... (pas de changement ici) ... */ };
 
   return (
     <div className="container">
@@ -68,7 +69,7 @@ function App() {
           <p>✅ Connecté</p>
           <button onClick={handleLogout} className="logout-button">Se déconnecter</button>
           
-          <FileUpload currentFolderId={currentFolder.id} onUploadSuccess={fetchContent} />
+          <FileActions currentFolderId={currentFolder.id} onActionSuccess={fetchContent} />
 	        <hr />
 
           <div className="search-bar">
@@ -80,7 +81,6 @@ function App() {
             />
           </div>
           
-          {/* NOUVEAU : Le fil d'Ariane pour la navigation */}
           <div className="breadcrumbs">
             {folderHistory.map((folder, index) => (
               <span key={folder.id || 'root'}>
@@ -97,7 +97,7 @@ function App() {
             loading={loading} 
             error={error} 
             onDeleteSuccess={fetchContent}
-            onFolderClick={handleFolderClick} // On passe la fonction de navigation
+            onFolderClick={handleFolderClick}
           />
         </>
       ) : (

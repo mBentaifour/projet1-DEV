@@ -6,7 +6,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f0f2f5; /* Fond légèrement gris */
+  background-color: #f0f2f5;
 }
 
 code {
@@ -14,7 +14,6 @@ code {
     monospace;
 }
 
-/* === Le conteneur principal de l'application === */
 .container {
   max-width: 900px;
   margin: 2rem auto;
@@ -24,7 +23,6 @@ code {
   padding: 2rem;
 }
 
-/* === Style Général === */
 h1, h3 {
   color: #333;
 }
@@ -35,7 +33,6 @@ hr {
   margin: 2rem 0;
 }
 
-/* === Boutons === */
 button {
   background-color: #007bff;
   color: white;
@@ -57,20 +54,18 @@ button:disabled {
 }
 
 .logout-button {
-  background-color: #6c757d;
+  background-color: #6c757d !important; /* !important pour forcer le style */
 }
 .logout-button:hover {
-  background-color: #5a6268;
+  background-color: #5a6268 !important;
 }
 
-/* === Formulaire d'Upload === */
 .upload-section {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-/* === Liste des Fichiers === */
 ul {
   list-style-type: none;
   padding: 0;
@@ -85,12 +80,12 @@ li {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap; /* Gère le passage à la ligne sur petits écrans */
+  flex-wrap: wrap;
 }
 
 li .file-info {
-  flex: 1; /* Permet au nom du fichier de prendre l'espace disponible */
-  min-width: 200px; /* Évite que le nom soit trop écrasé */
+  flex: 1;
+  min-width: 200px;
 }
 
 li strong {
@@ -137,7 +132,6 @@ li img {
   background-color: #218838;
 }
 
-/* === Barre de recherche === */
 .search-bar {
   margin-bottom: 1.5rem;
 }
@@ -151,7 +145,6 @@ li img {
   box-sizing: border-box;
 }
 
-/* === Conteneur pour le lien de partage === */
 .share-link-container {
   margin-top: 10px;
   display: flex;
@@ -159,16 +152,15 @@ li img {
 }
 
 .share-link-container input {
-  flex-grow: 1; /* Le champ prend toute la place disponible */
+  flex-grow: 1;
   border: 1px solid #ccc;
   padding: 5px;
   border-radius: 3px;
   background-color: #fff;
 }
 
-/* === Style pour les dossiers dans la liste === */
 .folder-item {
-  background-color: #eef4ff; /* Un fond bleu clair pour les dossiers */
+  background-color: #eef4ff;
   font-weight: bold;
 }
 
@@ -176,7 +168,7 @@ li img {
   font-size: 1.2em;
   margin-right: 10px;
 }
-/* === Fil d'Ariane (Breadcrumbs) === */
+
 .breadcrumbs {
   margin-bottom: 1rem;
   font-size: 1.1em;
@@ -194,4 +186,19 @@ li img {
 .breadcrumb-button:hover {
   text-decoration: underline;
   background-color: transparent;
+}
+
+.actions-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.new-folder-button {
+  background-color: #17a2b8;
+}
+.new-folder-button:hover {
+  background-color: #138496;
 }

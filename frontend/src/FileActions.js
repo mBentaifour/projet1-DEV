@@ -1,9 +1,9 @@
-// src/FileUpload.js
+// src/FileActions.js
 import React, { useState } from "react";
 import axios from "axios";
 import { getValidAccessToken, API_URL } from "./auth";
 
-const FileUpload = ({ onUploadSuccess, currentFolderId }) => {
+const FileActions = ({ onActionSuccess, currentFolderId }) => {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
@@ -23,19 +23,17 @@ const FileUpload = ({ onUploadSuccess, currentFolderId }) => {
       const token = await getValidAccessToken();
       const formData = new FormData();
       formData.append("file", file);
-      
-      // On ajoute l'ID du dossier courant au formulaire s'il existe
       if (currentFolderId) {
         formData.append("folder", currentFolderId);
       }
-      
+
       await axios.post(`${API_URL}/files/upload/`, formData, {
         headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` },
       });
 
       setFile(null);
       document.querySelector('input[type="file"]').value = "";
-      onUploadSuccess();
+      onActionSuccess();
     } catch (err) {
       console.error("Erreur de téléversement :", err);
       setError("❌ Erreur de téléversement. Veuillez réessayer.");
@@ -44,13 +42,43 @@ const FileUpload = ({ onUploadSuccess, currentFolderId }) => {
     }
   };
 
+  const handleCreateFolder = async () => {
+    const folderName = prompt("Entrez le nom du nouveau dossier :");
+    if (!folderName || folderName.trim() === "") {
+      return;
+    }
+    try {
+      const token = await getValidAccessToken();
+      await axios.post(`${API_URL}/files/folders/create/`,
+        {
+          name: folderName,
+          parent: currentFolderId,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      onActionSuccess();
+    } catch (err) {
+      console.error("Erreur lors de la création du dossier :", err);
+      alert("❌ Impossible de créer le dossier.");
+    }
+  };
+
   return (
     <div>
-      <h3>📁 Téléverser un fichier</h3>
-      <div className="upload-section">
-        <input type="file" onChange={handleFileChange} disabled={isUploading} />
-        <button onClick={handleUpload} disabled={isUploading}>
-          {isUploading ? "Téléversement en cours..." : "Envoyer"}
+      <h3>Actions</h3>
+      <div className="actions-container">
+        {/* Section Upload */}
+        <div className="upload-section">
+          <input type="file" onChange={handleFileChange} disabled={isUploading} />
+          <button onClick={handleUpload} disabled={isUploading}>
+            {isUploading ? "Téléversement..." : "Envoyer"}
+          </button>
+        </div>
+        {/* Section Nouveau Dossier */}
+        <button onClick={handleCreateFolder} className="new-folder-button">
+          📁 Nouveau Dossier
         </button>
       </div>
       {error && <p style={{ color: "red" }}>{error}</p>}
@@ -58,4 +86,4 @@ const FileUpload = ({ onUploadSuccess, currentFolderId }) => {
   );
 };
 
-export default FileUpload;
+export default FileActions;

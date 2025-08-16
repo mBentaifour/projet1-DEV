@@ -1,5 +1,4 @@
-# backend/files/views.py
-
+# files/views.py
 from django.shortcuts import render
 from rest_framework import generics, permissions, status, filters
 from rest_framework.views import APIView
@@ -8,37 +7,31 @@ from django.utils import timezone
 from datetime import timedelta
 from django.http import FileResponse, Http404
 
-from .models import File, SharedLink
-from .serializers import FileSerializer, SharedLinkSerializer
+from .models import File, Folder, SharedLink
+from .serializers import FileSerializer, FolderSerializer, SharedLinkSerializer
 
-# --- VUE MODIFIÉE AVEC LA VALIDATION ---
+# --- VUE MODIFIÉE POUR L'UPLOAD ---
 class FileUploadView(generics.CreateAPIView):
     queryset = File.objects.all()
     serializer_class = FileSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    # On redéfinit la méthode create pour ajouter notre logique de validation
     def create(self, request, *args, **kwargs):
         file_obj = request.data.get('file')
+        if not file_obj:
+            return Response({'error': 'Aucun fichier fourni.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # --- 1. Validation de la taille du fichier ---
-        # 5 * 1024 * 1024 = 5 MB en bytes
+        # Validation de la taille (5 Mo)
         if file_obj.size > 5 * 1024 * 1024: 
-            return Response({
-                'error': 'Le fichier est trop volumineux. La taille maximale est de 5 Mo.'
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Le fichier est trop volumineux. La taille maximale est de 5 Mo.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # --- 2. Validation du type de fichier ---
+        # Validation du type
         allowed_extensions = ['.jpg', '.jpeg', '.png', '.webp', '.pdf', '.docx']
-        # On récupère l'extension en minuscules pour être sûr
         file_extension = '.' + file_obj.name.split('.')[-1].lower()
-
         if file_extension not in allowed_extensions:
-            return Response({
-                'error': f"Type de fichier non autorisé. Types autorisés : {', '.join(allowed_extensions)}"
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': f"Type de fichier non autorisé. Types autorisés : {', '.join(allowed_extensions)}"}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Si tout est bon, on continue le processus normal de DRF
+        # Le reste est standard
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -46,13 +39,55 @@ class FileUploadView(generics.CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
+        # On assigne le propriétaire
         serializer.save(owner=self.request.user)
 
 
-class FileListView(generics.ListAPIView):
-    serializer_class = FileSerializer
+# --- NOUVELLES VUES POUR LES DOSSIERS ---
+
+class FolderContentView(APIView):
+    """
+    Affiche le contenu d'un dossier (sous-dossiers et fichiers).
+    Si aucun ID de dossier n'est fourni, affiche le contenu de la racine.
+    """
     permission_classes = [permissions.IsAuthenticated]
 
+    def get(self, request, folder_id=None):
+        owner = request.user
+        
+        # Récupère les sous-dossiers
+        subfolders = Folder.objects.filter(owner=owner, parent_id=folder_id)
+        # Récupère les fichiers dans ce dossier
+        files_in_folder = File.objects.filter(owner=owner, folder_id=folder_id)
+
+        # On traduit les données en JSON
+        folder_serializer = FolderSerializer(subfolders, many=True)
+        file_serializer = FileSerializer(files_in_folder, many=True, context={'request': request})
+        
+        return Response({
+            'folders': folder_serializer.data,
+            'files': file_serializer.data
+        })
+
+class FolderCreateView(generics.CreateAPIView):
+    """
+    Crée un nouveau dossier.
+    """
+    queryset = Folder.objects.all()
+    serializer_class = FolderSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # On assigne le propriétaire au nouveau dossier
+        serializer.save(owner=self.request.user)
+
+
+# --- ANCIENNES VUES ---
+
+class FileListView(generics.ListAPIView):
+    # CETTE VUE N'EST PLUS UTILE, on la garde pour l'instant pour la recherche
+    serializer_class = FileSerializer
+    permission_classes = [permissions.IsAuthenticated]
     filter_backends = [filters.SearchFilter]
     search_fields = ['file']
 
@@ -62,7 +97,6 @@ class FileListView(generics.ListAPIView):
     def get_queryset(self):
         return File.objects.filter(owner=self.request.user)
 
-
 class FileDeleteView(generics.DestroyAPIView):
     queryset = File.objects.all()
     permission_classes = [permissions.IsAuthenticated]
@@ -70,51 +104,30 @@ class FileDeleteView(generics.DestroyAPIView):
     def get_queryset(self):
         return File.objects.filter(owner=self.request.user)
 
-
-# --- VUES POUR LE PARTAGE ---
-
 class CreateSharedLinkView(APIView):
-    """
-    Crée un lien de partage pour un fichier.
-    """
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
         try:
-            # On vérifie que le fichier existe ET qu'il appartient bien à l'utilisateur connecté
             file_to_share = File.objects.get(pk=pk, owner=request.user)
         except File.DoesNotExist:
             return Response({'error': 'Fichier non trouvé.'}, status=status.HTTP_404_NOT_FOUND)
-
-        # On crée un lien qui expire dans 24 heures
         expires_at = timezone.now() + timedelta(days=1)
         shared_link = SharedLink.objects.create(file=file_to_share, expires_at=expires_at)
-
-        # On construit l'URL complète du lien de partage
         link_url = request.build_absolute_uri(f"/api/files/shared/{shared_link.id}/")
-
         return Response({'shared_link': link_url}, status=status.HTTP_201_CREATED)
 
-
 class SharedFileView(APIView):
-    """
-    Permet à n'importe qui de télécharger un fichier via un lien de partage valide.
-    """
-    permission_classes = [permissions.AllowAny] # Pas besoin d'être connecté
+    permission_classes = [permissions.AllowAny]
 
     def get(self, request, uuid):
         try:
             shared_link = SharedLink.objects.get(id=uuid)
         except SharedLink.DoesNotExist:
             raise Http404("Ce lien de partage n'existe pas.")
-
-        # On vérifie si le lien a expiré
         if shared_link.is_expired():
             return Response({'error': 'Ce lien a expiré.'}, status=status.HTTP_410_GONE)
-
-        # Si tout est bon, on envoie le fichier en téléchargement
         file_handle = shared_link.file.file
-        # Prend le nom du fichier sans le chemin 'uploads/'
         filename = file_handle.name.split('/')[-1]
         response = FileResponse(file_handle, as_attachment=True, filename=filename)
         return response

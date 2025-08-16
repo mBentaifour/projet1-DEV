@@ -1,6 +1,13 @@
-# backend/files/serializers.py
+# files/serializers.py
 from rest_framework import serializers
-from .models import File, SharedLink # Assure-toi que SharedLink est bien importé ici
+from .models import File, Folder, SharedLink # <-- Ajoute Folder ici
+
+# NOUVEAU : Le serializer pour les dossiers
+class FolderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Folder
+        fields = ['id', 'name', 'parent', 'created_at']
+
 
 class FileSerializer(serializers.ModelSerializer):
     file_url = serializers.SerializerMethodField()
@@ -8,7 +15,8 @@ class FileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = File
-        fields = ['id', 'file', 'uploaded_at', 'file_url', 'name']
+        # On ajoute le champ 'folder' pour savoir où est le fichier
+        fields = ['id', 'file', 'uploaded_at', 'file_url', 'name', 'folder']
 
     def get_file_url(self, obj):
         request = self.context.get('request')
@@ -17,11 +25,10 @@ class FileSerializer(serializers.ModelSerializer):
         return None
 
     def get_name(self, obj):
-        # Prend seulement le nom du fichier, pas le chemin complet
         return obj.file.name.split('/')[-1]
+
 
 class SharedLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = SharedLink
-        # On ne va exposer que l'ID unique (le lien lui-même)
         fields = ['id']

@@ -1,20 +1,29 @@
-# backend/files/urls.py
-
-from django.urls import path
+# files/urls.py
+from django.urls import path, re_path
 from .views import (
-    FileUploadView,
-    FileListView,
-    FileDeleteView,
+    FileUploadView, 
+    FileListView, 
+    FileDeleteView, 
     CreateSharedLinkView,
-    SharedFileView
+    SharedFileView,
+    FolderContentView, # <-- Importer
+    FolderCreateView   # <-- Importer
 )
 
 urlpatterns = [
+    # Routes pour les fichiers
     path('upload/', FileUploadView.as_view(), name='file-upload'),
-    path('', FileListView.as_view(), name='file-list'),
     path('<int:pk>/', FileDeleteView.as_view(), name='file-delete'),
-
-    # Nouvelles routes pour le partage
     path('<int:pk>/share/', CreateSharedLinkView.as_view(), name='file-share'),
     path('shared/<uuid:uuid>/', SharedFileView.as_view(), name='shared-file'),
+    
+    # Route pour la recherche (on garde l'ancienne vue pour ça)
+    path('search/', FileListView.as_view(), name='file-search'),
+
+    # Routes pour les dossiers
+    path('folders/create/', FolderCreateView.as_view(), name='folder-create'),
+    # Affiche le contenu de la racine
+    path('folders/content/', FolderContentView.as_view(), name='folder-content-root'),
+    # Affiche le contenu d'un dossier spécifique
+    path('folders/content/<int:folder_id>/', FolderContentView.as_view(), name='folder-content-specific'),
 ]
