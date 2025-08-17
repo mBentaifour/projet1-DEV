@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { getValidAccessToken, API_URL } from "./auth";
 
+// La prop "onCreateFolder" est la clé. C'est la fonction qui vient de App.js pour ouvrir la modale.
 const FileActions = ({ onActionSuccess, currentFolderId, onCreateFolder }) => {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -12,6 +13,7 @@ const FileActions = ({ onActionSuccess, currentFolderId, onCreateFolder }) => {
     setFile(event.target.files[0]);
   };
 
+  // La logique d'upload reste la même
   const handleUpload = async () => {
     if (!file) {
       alert("📂 Sélectionne un fichier avant d'envoyer !");
@@ -50,6 +52,12 @@ const FileActions = ({ onActionSuccess, currentFolderId, onCreateFolder }) => {
             {isUploading ? "Téléversement..." : "Envoyer"}
           </button>
         </div>
+
+        {/*
+          ICI EST LE CHANGEMENT IMPORTANT :
+          onClick appelle directement "onCreateFolder" qui vient des props.
+          Il n'y a plus de fonction handleCreateFolder dans ce fichier.
+        */}
         <button onClick={onCreateFolder} className="new-folder-button">
           📁 Nouveau Dossier
         </button>
@@ -60,3 +68,4 @@ const FileActions = ({ onActionSuccess, currentFolderId, onCreateFolder }) => {
 };
 
 export default FileActions;
+

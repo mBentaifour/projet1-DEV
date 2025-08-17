@@ -4,7 +4,7 @@ import axios from "axios";
 import Login from "./Login";
 import FileActions from "./FileActions";
 import FileManager from "./FileList";
-import Modal from './Modal';
+import Modal from './Modal'; // <-- Importer notre nouvelle modale
 import { getValidAccessToken, API_URL } from "./auth";
 
 function App() {
@@ -15,14 +15,13 @@ function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [folderHistory, setFolderHistory] = useState([{ id: null, name: "Accueil" }]);
   const currentFolder = folderHistory[folderHistory.length - 1];
+
+  // NOUVEAU : États pour la modale de création de dossier
   const [isCreateFolderModalOpen, setCreateFolderModalOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
 
   const fetchContent = useCallback(async () => {
-    if (!isLoggedIn) {
-      setLoading(false);
-      return;
-    }
+    if (!isLoggedIn) return;
     setLoading(true);
     setError("");
     try {
@@ -50,22 +49,16 @@ function App() {
     fetchContent();
   }, [fetchContent]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
-    setIsLoggedIn(false);
-    setContent({ folders: [], files: [] });
-  };
-
+  const handleLogout = () => { /* ... */ };
   const handleFolderClick = (folder) => {
     setSearchTerm("");
     setFolderHistory([...folderHistory, folder]);
   };
-  
   const handleBreadcrumbClick = (index) => {
     setFolderHistory(folderHistory.slice(0, index + 1));
   };
 
+  // NOUVELLE FONCTION : pour créer un dossier via la modale
   const handleCreateFolder = async (e) => {
     e.preventDefault();
     if (!newFolderName || newFolderName.trim() === "") return;
@@ -86,7 +79,6 @@ function App() {
 
   return (
     <div className="container">
-      <h1>projet1-DEV - Interface utilisateur</h1>
       {isLoggedIn ? (
         <>
           <p>✅ Connecté</p>
@@ -98,15 +90,6 @@ function App() {
             onCreateFolder={() => setCreateFolderModalOpen(true)}
           />
 	        <hr />
-
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Rechercher dans tous les fichiers..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
           
           <div className="breadcrumbs">
             {folderHistory.map((folder, index) => (
@@ -131,6 +114,7 @@ function App() {
         <Login onLogin={() => setIsLoggedIn(true)} />
       )}
 
+      {/* La modale pour créer un dossier */}
       <Modal isOpen={isCreateFolderModalOpen} onClose={() => setCreateFolderModalOpen(false)}>
         <form onSubmit={handleCreateFolder}>
           <h3>Nouveau Dossier</h3>

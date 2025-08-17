@@ -202,6 +202,9 @@ li img {
 .new-folder-button:hover {
   background-color: #138496;
 }
+
+/* ... (tous tes autres styles) ... */
+
 /* === Style pour la Modale === */
 .modal-overlay {
   position: fixed;
