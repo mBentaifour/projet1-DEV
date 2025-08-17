@@ -7,7 +7,8 @@ from .views import (
     CreateSharedLinkView,
     SharedFileView,
     FolderContentView, # <-- Importer
-    FolderCreateView   # <-- Importer
+    FolderCreateView,   # <-- Importer
+    FolderRenameView
 )
 
 urlpatterns = [
@@ -16,7 +17,7 @@ urlpatterns = [
     path('<int:pk>/', FileDeleteView.as_view(), name='file-delete'),
     path('<int:pk>/share/', CreateSharedLinkView.as_view(), name='file-share'),
     path('shared/<uuid:uuid>/', SharedFileView.as_view(), name='shared-file'),
-    
+
     # Route pour la recherche (on garde l'ancienne vue pour ça)
     path('search/', FileListView.as_view(), name='file-search'),
 
@@ -26,4 +27,5 @@ urlpatterns = [
     path('folders/content/', FolderContentView.as_view(), name='folder-content-root'),
     # Affiche le contenu d'un dossier spécifique
     path('folders/content/<int:folder_id>/', FolderContentView.as_view(), name='folder-content-specific'),
+    path('folders/<int:pk>/rename/', FolderRenameView.as_view(), name='folder-rename'),
 ]

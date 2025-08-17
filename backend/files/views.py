@@ -30,7 +30,7 @@ class FileUploadView(generics.CreateAPIView):
         file_extension = '.' + file_obj.name.split('.')[-1].lower()
         if file_extension not in allowed_extensions:
             return Response({'error': f"Type de fichier non autorisé. Types autorisés : {', '.join(allowed_extensions)}"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         # Le reste est standard
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -131,3 +131,17 @@ class SharedFileView(APIView):
         filename = file_handle.name.split('/')[-1]
         response = FileResponse(file_handle, as_attachment=True, filename=filename)
         return response
+# ... (à la fin de backend/files/views.py)
+
+class FolderRenameView(generics.UpdateAPIView):
+    """
+    Permet de renommer un dossier.
+    """
+    queryset = Folder.objects.all()
+    serializer_class = FolderSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'pk' # L'ID du dossier sera passé dans l'URL
+
+    def get_queryset(self):
+        # Assure que l'utilisateur ne peut renommer que ses propres dossiers
+        return Folder.objects.filter(owner=self.request.user)
