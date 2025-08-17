@@ -145,3 +145,18 @@ class FolderRenameView(generics.UpdateAPIView):
     def get_queryset(self):
         # Assure que l'utilisateur ne peut renommer que ses propres dossiers
         return Folder.objects.filter(owner=self.request.user)
+
+# (à ajouter à la fin de votre fichier backend/files/views.py)
+
+class FolderDeleteView(generics.DestroyAPIView):
+    """
+    Supprime un dossier et tout son contenu (fichiers et sous-dossiers)
+    grâce à la suppression en cascade de la base de données.
+    """
+    queryset = Folder.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'pk' # L'ID du dossier sera passé dans l'URL
+
+    def get_queryset(self):
+        # Sécurité : Assure que l'utilisateur ne peut supprimer que ses propres dossiers.
+        return Folder.objects.filter(owner=self.request.user)

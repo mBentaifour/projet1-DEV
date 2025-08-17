@@ -49,7 +49,19 @@ function App() {
     fetchContent();
   }, [fetchContent]);
 
-  const handleLogout = () => { /* ... */ };
+  const handleLogout = () => {
+  // 1. On supprime les tokens JWT du stockage local
+  localStorage.removeItem("access");
+  localStorage.removeItem("refresh"); // Important de supprimer les deux !
+
+  // 2. On met à jour l'état pour dire que l'utilisateur n'est plus connecté
+  setIsLoggedIn(false);
+
+  // 3. On vide le contenu affiché pour éviter d'afficher les anciens fichiers
+  setContent({ folders: [], files: [] });
+
+  console.log("Utilisateur déconnecté.");
+};
   const handleFolderClick = (folder) => {
     setSearchTerm("");
     setFolderHistory([...folderHistory, folder]);

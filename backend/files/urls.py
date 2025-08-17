@@ -1,14 +1,15 @@
 # files/urls.py
 from django.urls import path, re_path
 from .views import (
-    FileUploadView, 
-    FileListView, 
-    FileDeleteView, 
+    FileUploadView,
+    FileListView,
+    FileDeleteView,
     CreateSharedLinkView,
     SharedFileView,
     FolderContentView, # <-- Importer
     FolderCreateView,   # <-- Importer
-    FolderRenameView
+    FolderRenameView,
+    FolderDeleteView
 )
 
 urlpatterns = [
@@ -28,4 +29,5 @@ urlpatterns = [
     # Affiche le contenu d'un dossier spécifique
     path('folders/content/<int:folder_id>/', FolderContentView.as_view(), name='folder-content-specific'),
     path('folders/<int:pk>/rename/', FolderRenameView.as_view(), name='folder-rename'),
+    path('folders/<int:pk>/', FolderDeleteView.as_view(), name='folder-delete'),
 ]

@@ -21,6 +21,25 @@ const FileManager = ({ content, loading, error, onDeleteSuccess, onFolderClick }
     }
   };
 
+  // NOUVEAU : Fonction pour supprimer un dossier et son contenu
+  const handleDeleteFolder = async (folderId) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce dossier et tout son contenu ? L'action est irréversible.")) {
+      return;
+    }
+    try {
+      const token = await getValidAccessToken();
+      // On cible une nouvelle URL d'API pour les dossiers
+      await axios.delete(`${API_URL}/files/folders/${folderId}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // On appelle la fonction de App.js pour rafraîchir la liste
+      onDeleteSuccess();
+    } catch (err) {
+      console.error("Erreur lors de la suppression du dossier :", err);
+      alert("❌ Impossible de supprimer le dossier.");
+    }
+  };
+
   const handleShare = async (fileId) => {
     try {
       const token = await getValidAccessToken();
@@ -56,11 +75,25 @@ const FileManager = ({ content, loading, error, onDeleteSuccess, onFolderClick }
       {!loading && content.folders.length === 0 && content.files.length === 0 && <p>Ce dossier est vide.</p>}
 
       <ul>
+        {/* MODIFIÉ : Ajout du bouton Supprimer pour chaque dossier */}
         {content.folders.map((folder) => (
-          <li key={`folder-${folder.id}`} className="folder-item" onClick={() => onFolderClick(folder)} style={{ cursor: 'pointer' }}>
-            <div className="file-info">
+          <li key={`folder-${folder.id}`} className="folder-item">
+            {/* On garde la div cliquable pour la navigation */}
+            <div className="file-info" onClick={() => onFolderClick(folder)} style={{ cursor: 'pointer', flexGrow: 1 }}>
               <span className="folder-icon">📁</span>
               <strong>{folder.name}</strong>
+            </div>
+            {/* On ajoute une div séparée pour les actions */}
+            <div className="file-actions">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation(); // Empêche d'entrer dans le dossier en cliquant sur supprimer
+                  handleDeleteFolder(folder.id);
+                }} 
+                className="delete-button"
+              >
+                Supprimer
+              </button>
             </div>
           </li>
         ))}
