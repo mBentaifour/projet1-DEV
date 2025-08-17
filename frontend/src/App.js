@@ -2,8 +2,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Login from "./Login";
-import FileActions from "./FileActions";
-import FileManager from "./FileList";
+import FileActions from "./FileActions"; // Assure-toi que le fichier s'appelle bien FileActions.js
+import FileManager from "./FileList";   // Assure-toi que le fichier s'appelle bien FileList.js
+import Modal from './Modal';
 import { getValidAccessToken, API_URL } from "./auth";
 
 function App() {
@@ -14,9 +15,14 @@ function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [folderHistory, setFolderHistory] = useState([{ id: null, name: "Accueil" }]);
   const currentFolder = folderHistory[folderHistory.length - 1];
+  const [isCreateFolderModalOpen, setCreateFolderModalOpen] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
 
   const fetchContent = useCallback(async () => {
-    if (!isLoggedIn) return;
+    if (!isLoggedIn) {
+        setLoading(false);
+        return;
+    }
     setLoading(true);
     setError("");
     try {
@@ -44,7 +50,6 @@ function App() {
     fetchContent();
   }, [fetchContent]);
 
-  // LA FONCTION CORRIGÉE EST ICI
   const handleLogout = () => {
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
@@ -58,7 +63,26 @@ function App() {
   };
   
   const handleBreadcrumbClick = (index) => {
+    setSearchTerm("");
     setFolderHistory(folderHistory.slice(0, index + 1));
+  };
+
+  const handleCreateFolder = async (e) => {
+    e.preventDefault();
+    if (!newFolderName || newFolderName.trim() === "") return;
+    try {
+      const token = await getValidAccessToken();
+      await axios.post(`${API_URL}/files/folders/create/`, 
+        { name: newFolderName, parent: currentFolder.id }, 
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setCreateFolderModalOpen(false);
+      setNewFolderName("");
+      fetchContent();
+    } catch (err) {
+      console.error("Erreur lors de la création du dossier :", err);
+      alert("❌ Impossible de créer le dossier.");
+    }
   };
 
   return (
@@ -69,7 +93,11 @@ function App() {
           <p>✅ Connecté</p>
           <button onClick={handleLogout} className="logout-button">Se déconnecter</button>
           
-          <FileActions currentFolderId={currentFolder.id} onActionSuccess={fetchContent} />
+          <FileActions 
+            currentFolderId={currentFolder.id} 
+            onActionSuccess={fetchContent}
+            onCreateFolder={() => setCreateFolderModalOpen(true)}
+          />
 	        <hr />
 
           <div className="search-bar">
@@ -103,6 +131,24 @@ function App() {
       ) : (
         <Login onLogin={() => setIsLoggedIn(true)} />
       )}
+
+      <Modal isOpen={isCreateFolderModalOpen} onClose={() => setCreateFolderModalOpen(false)}>
+        <form onSubmit={handleCreateFolder}>
+          <h3>Nouveau Dossier</h3>
+          <input
+            type="text"
+            className="modal-input"
+            value={newFolderName}
+            onChange={(e) => setNewFolderName(e.target.value)}
+            placeholder="Nom du dossier"
+            autoFocus
+          />
+          <div className="modal-actions">
+            <button type="button" className="modal-button-cancel" onClick={() => setCreateFolderModalOpen(false)}>Annuler</button>
+            <button type="submit" className="modal-button-confirm">Créer</button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

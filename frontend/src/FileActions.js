@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { getValidAccessToken, API_URL } from "./auth";
 
-const FileActions = ({ onActionSuccess, currentFolderId }) => {
+const FileActions = ({ onActionSuccess, currentFolderId, onCreateFolder }) => {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
@@ -77,7 +77,7 @@ const FileActions = ({ onActionSuccess, currentFolderId }) => {
           </button>
         </div>
         {/* Section Nouveau Dossier */}
-        <button onClick={handleCreateFolder} className="new-folder-button">
+        <button onClick={onCreateFolder} className="new-folder-button">
           📁 Nouveau Dossier
         </button>
       </div>

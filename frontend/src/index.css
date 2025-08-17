@@ -202,3 +202,70 @@ li img {
 .new-folder-button:hover {
   background-color: #138496;
 }
+/* === Style pour la Modale === */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 8px;
+  position: relative;
+  width: 90%;
+  max-width: 400px;
+}
+
+.modal-close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #aaa;
+}
+.modal-close-button:hover {
+    color: #333;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-sizing: border-box;
+  margin-top: 10px;
+}
+
+.modal-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-button-cancel {
+  background-color: #6c757d;
+}
+.modal-button-cancel:hover {
+  background-color: #5a6268;
+}
+
+.modal-button-confirm {
+  background-color: #007bff;
+}
+.modal-button-confirm:hover {
+  background-color: #0056b3;
+}
