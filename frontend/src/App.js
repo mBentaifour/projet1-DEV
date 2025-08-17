@@ -2,8 +2,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Login from "./Login";
-import FileActions from "./FileActions"; // Assure-toi que le fichier s'appelle bien FileActions.js
-import FileManager from "./FileList";   // Assure-toi que le fichier s'appelle bien FileList.js
+import FileActions from "./FileActions";
+import FileManager from "./FileList";
 import Modal from './Modal';
 import { getValidAccessToken, API_URL } from "./auth";
 
@@ -20,8 +20,8 @@ function App() {
 
   const fetchContent = useCallback(async () => {
     if (!isLoggedIn) {
-        setLoading(false);
-        return;
+      setLoading(false);
+      return;
     }
     setLoading(true);
     setError("");
@@ -63,7 +63,6 @@ function App() {
   };
   
   const handleBreadcrumbClick = (index) => {
-    setSearchTerm("");
     setFolderHistory(folderHistory.slice(0, index + 1));
   };
 

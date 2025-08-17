@@ -26,11 +26,9 @@ const FileActions = ({ onActionSuccess, currentFolderId, onCreateFolder }) => {
       if (currentFolderId) {
         formData.append("folder", currentFolderId);
       }
-
       await axios.post(`${API_URL}/files/upload/`, formData, {
         headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` },
       });
-
       setFile(null);
       document.querySelector('input[type="file"]').value = "";
       onActionSuccess();
@@ -42,41 +40,16 @@ const FileActions = ({ onActionSuccess, currentFolderId, onCreateFolder }) => {
     }
   };
 
-  const handleCreateFolder = async () => {
-    const folderName = prompt("Entrez le nom du nouveau dossier :");
-    if (!folderName || folderName.trim() === "") {
-      return;
-    }
-    try {
-      const token = await getValidAccessToken();
-      await axios.post(`${API_URL}/files/folders/create/`,
-        {
-          name: folderName,
-          parent: currentFolderId,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      onActionSuccess();
-    } catch (err) {
-      console.error("Erreur lors de la création du dossier :", err);
-      alert("❌ Impossible de créer le dossier.");
-    }
-  };
-
   return (
     <div>
       <h3>Actions</h3>
       <div className="actions-container">
-        {/* Section Upload */}
         <div className="upload-section">
           <input type="file" onChange={handleFileChange} disabled={isUploading} />
           <button onClick={handleUpload} disabled={isUploading}>
             {isUploading ? "Téléversement..." : "Envoyer"}
           </button>
         </div>
-        {/* Section Nouveau Dossier */}
         <button onClick={onCreateFolder} className="new-folder-button">
           📁 Nouveau Dossier
         </button>
