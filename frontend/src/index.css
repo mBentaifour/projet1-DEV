@@ -272,3 +272,7 @@ li img {
 .modal-button-confirm:hover {
   background-color: #0056b3;
 }
+.container h3,
+.container h4 {
+  text-align: center;
+}

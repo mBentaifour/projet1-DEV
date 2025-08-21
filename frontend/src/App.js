@@ -19,6 +19,10 @@ function App() {
   // NOUVEAU : États pour la modale de création de dossier
   const [isCreateFolderModalOpen, setCreateFolderModalOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
+ // <-- VOICI L'AJOUT POUR LE TITRE
+  useEffect(() => {
+    document.title = "Tay4 Votre Gestionnaire de Fichiers";
+  }, []); // Le tableau vide [] assure que cela ne s'exécute qu'une seule fois
 
   const fetchContent = useCallback(async () => {
     if (!isLoggedIn) return;
@@ -76,8 +80,8 @@ function App() {
     if (!newFolderName || newFolderName.trim() === "") return;
     try {
       const token = await getValidAccessToken();
-      await axios.post(`${API_URL}/files/folders/create/`, 
-        { name: newFolderName, parent: currentFolder.id }, 
+      await axios.post(`${API_URL}/files/folders/create/`,
+        { name: newFolderName, parent: currentFolder.id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCreateFolderModalOpen(false);
@@ -91,18 +95,21 @@ function App() {
 
   return (
     <div className="container">
+         {/* 👇 AJOUTE TON TITRE ICI 👇 */}
+      <h4>Tay4-Manage</h4>
+      <h3>Votre Gestionnaire de Fichiers</h3>
       {isLoggedIn ? (
         <>
           <p>✅ Connecté</p>
           <button onClick={handleLogout} className="logout-button">Se déconnecter</button>
-          
-          <FileActions 
-            currentFolderId={currentFolder.id} 
+
+          <FileActions
+            currentFolderId={currentFolder.id}
             onActionSuccess={fetchContent}
             onCreateFolder={() => setCreateFolderModalOpen(true)}
           />
 	        <hr />
-          
+
           <div className="breadcrumbs">
             {folderHistory.map((folder, index) => (
               <span key={folder.id || 'root'}>
